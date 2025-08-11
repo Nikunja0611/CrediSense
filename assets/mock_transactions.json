@@ -1,0 +1,10 @@
+[
+  {"id":"t1","title":"Grocery Store","category":"Groceries","amount":1240,"date":"2025-08-05","isExpense":true},
+  {"id":"t2","title":"Fuel Station","category":"Transport","amount":2100,"date":"2025-08-04","isExpense":true},
+  {"id":"t3","title":"Electricity Bill","category":"Utilities","amount":3450,"date":"2025-07-30","isExpense":true},
+  {"id":"t4","title":"Salary","category":"Income","amount":50000,"date":"2025-07-31","isExpense":false},
+  {"id":"t5","title":"Coffee Shop","category":"Entertainment","amount":350,"date":"2025-08-02","isExpense":true},
+  {"id":"t6","title":"Internet Bill","category":"Utilities","amount":1299,"date":"2025-08-09","isExpense":true},
+  {"id":"t7","title":"Rent","category":"Housing","amount":15000,"date":"2025-08-01","isExpense":true},
+  {"id":"t8","title":"Groceries Online","category":"Groceries","amount":2100,"date":"2025-08-03","isExpense":true}
+]
