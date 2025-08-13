@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
 
 class BalanceCard extends StatelessWidget {
   final double balance;
   final double monthExpense;
   final int creditScore;
   final VoidCallback? onViewCredit;
+  final Color primaryColor;
+  final Color secondaryColor;
 
   const BalanceCard({
     super.key,
@@ -13,25 +14,34 @@ class BalanceCard extends StatelessWidget {
     required this.monthExpense,
     required this.creditScore,
     this.onViewCredit,
+    required this.primaryColor,
+    required this.secondaryColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
-      elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(14.0),
+        padding: const EdgeInsets.all(18.0),
         child: Column(
           children: [
             Row(
               children: [
-                const Icon(Icons.account_balance_wallet_outlined, size: 28),
+                Icon(Icons.account_balance_wallet, color: primaryColor, size: 28),
                 const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Total Balance', style: TextStyle(fontSize: 12)),
-                    Text('₹${balance.toStringAsFixed(0)}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    Text(
+                      '₹${balance.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
+                    ),
                   ],
                 ),
                 const Spacer(),
@@ -39,13 +49,20 @@ class BalanceCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     const Text('This Month', style: TextStyle(fontSize: 12)),
-                    Text('₹${monthExpense.toStringAsFixed(0)}', style: const TextStyle(fontSize: 16)),
+                    Text(
+                      '₹${monthExpense.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: secondaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
-                )
+                ),
               ],
             ),
             const SizedBox(height: 12),
-            Divider(),
+            Divider(color: Colors.grey.shade300),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -53,13 +70,23 @@ class BalanceCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Credit Score', style: TextStyle(fontSize: 12)),
-                    Text('$creditScore', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text(
+                      '$creditScore',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
+                    ),
                   ],
                 ),
                 const Spacer(),
                 ElevatedButton(
                   onPressed: onViewCredit,
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: secondaryColor,
+                    foregroundColor: Colors.white,
+                  ),
                   child: const Text('Credit Score Simulator'),
                 ),
               ],

@@ -18,10 +18,11 @@ class DashboardScreen extends StatelessWidget {
     final finance = Provider.of<FinanceProvider>(context);
     final auth = Provider.of<AuthProvider>(context);
     final transactions = finance.transactions.take(5).toList();
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: SimpleAppBar(
-        title: 'Welcome back, ${auth.user?.name ?? 'User'}',
+        title: 'Welcome, ${auth.user?.name ?? 'User'}',
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -37,30 +38,48 @@ class DashboardScreen extends StatelessWidget {
             monthExpense: finance.monthExpense,
             creditScore: finance.creditScore,
             onViewCredit: () => Navigator.pushNamed(context, Routes.creditScore),
+            primaryColor: AppColors.primary,
+            secondaryColor: AppColors.secondary,
           ),
-          const SizedBox(height: 14),
-          Text('Smart Expense Tracking', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 20),
+          Text(
+            'Smart Expense Tracking',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 8),
-          ...finance.budgets.map((b) => BudgetProgress(budget: b)).toList(),
-          const SizedBox(height: 12),
+          ...finance.budgets.map((b) => BudgetProgress(
+            budget: b,
+            primaryColor: AppColors.secondary,
+            dangerColor: AppColors.secondary,
+          )),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent transactions', style: Theme.of(context).textTheme.titleMedium),
+              Text('Recent Transactions',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  )),
               TextButton(
-                  onPressed: () => Navigator.pushNamed(context, Routes.transactions),
-                  child: const Text('View all')),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.secondary,
+                ),
+                onPressed: () => Navigator.pushNamed(context, Routes.transactions),
+                child: const Text('View All'),
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          ...transactions.map((t) => TransactionTile(tx: t)).toList(),
+          ...transactions.map((t) => TransactionTile(tx: t)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.secondary,
         child: const Icon(Icons.add),
         onPressed: () {
-          // quick add demo transaction
           final newTx = TransactionModel(
             id: DateTime.now().toIso8601String(),
             title: 'Coffee',
@@ -70,7 +89,9 @@ class DashboardScreen extends StatelessWidget {
             isExpense: true,
           );
           finance.addTransaction(newTx);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added Coffee')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Added Coffee')),
+          );
         },
       ),
     );
