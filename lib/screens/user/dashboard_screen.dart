@@ -11,7 +11,7 @@ import '../../widgets/ai_tips_card.dart';
 import '../../widgets/loan_card.dart';
 import '../../widgets/loan_request_card.dart';
 import '../../routers.dart';
-
+import '../user/ai_insights_screen.dart';
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -264,10 +264,12 @@ class _BottomBar extends StatelessWidget {
             Navigator.pushNamed(context, Routes.transactions);
           }),
           _navItem(context, Icons.psychology_alt_rounded, 'AI Insights', () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('AI Insights coming soon')),
-            );
-          }),
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const AIInsightsScreen()),
+  );
+}),
+
           _navItem(context, Icons.person_rounded, 'Profile', () {
             Navigator.pushNamed(context, Routes.settings);
           }),

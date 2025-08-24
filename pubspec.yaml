@@ -13,6 +13,7 @@ dependencies:
   intl: ^0.18.1
   google_fonts: ^4.0.4
   fl_chart: ^0.66.2
+  http: ^0.13.6
   
 dev_dependencies:
   flutter_test:
@@ -23,3 +24,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/mock_transactions.json
+    - assets/mock_persona.json

@@ -28,7 +28,7 @@ class Routes {
     return {
       login: (ctx) => const LoginScreen(),
       signup: (ctx) => const SignupScreen(),
-      dashboard: (ctx) => const DashboardScreen(),
+      dashboard: (ctx) =>  DashboardScreen(),
       transactions: (ctx) => const TransactionsScreen(),
       creditScore: (ctx) => const CreditScoreScreen(),
       settings: (ctx) => const SettingsScreen(),
