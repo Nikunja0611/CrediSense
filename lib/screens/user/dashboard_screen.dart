@@ -261,7 +261,7 @@ class _BottomBar extends StatelessWidget {
             Navigator.pushNamed(context, Routes.creditScore);
           }),
           _navItem(context, Icons.attach_money_rounded, 'Loan', () {
-            Navigator.pushNamed(context, Routes.transactions);
+            Navigator.pushNamed(context, Routes.loanuser);
           }),
           _navItem(context, Icons.psychology_alt_rounded, 'AI Insights', () {
   Navigator.push(

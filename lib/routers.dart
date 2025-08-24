@@ -3,6 +3,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'screens/user/dashboard_screen.dart';
 import 'screens/user/transactions_screen.dart';
+import 'screens/user/loan_users.dart';
 import 'screens/user/credit_score_screen.dart';
 import 'screens/user/settings_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
@@ -16,6 +17,7 @@ class Routes {
   static const signup = '/signup';
   static const dashboard = '/dashboard';
   static const transactions = '/transactions';
+  static const loanuser = '/loanuser';
   static const creditScore = '/credit';
   static const settings = '/settings';
   static const admin = '/admin';
@@ -30,6 +32,7 @@ class Routes {
       signup: (ctx) => const SignupScreen(),
       dashboard: (ctx) =>  DashboardScreen(),
       transactions: (ctx) => const TransactionsScreen(),
+      loanuser: (ctx) => const LoanUser(),
       creditScore: (ctx) => const CreditScoreScreen(),
       settings: (ctx) => const SettingsScreen(),
       admin: (ctx) => const AdminDashboardScreen(),
