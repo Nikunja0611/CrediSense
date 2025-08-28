@@ -20,19 +20,21 @@ class _LoginScreenState extends State<LoginScreen> {
   void _submit() async {
     if (!_form.currentState!.validate()) return;
     _form.currentState!.save();
+
     setState(() => loading = true);
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    final ok = await auth.login(email: email, password: password);
+
+    final role = await auth.login(email: email, password: password);
     setState(() => loading = false);
-    if (ok) {
-      if (auth.user?.role == 'admin') {
-        Navigator.pushReplacementNamed(context, Routes.admin);
-      } else {
-        Navigator.pushReplacementNamed(context, Routes.dashboard);
-      }
+
+    if (role == "admin") {
+      Navigator.pushReplacementNamed(context, Routes.admin);
+    } else if (role == "user") {
+      Navigator.pushReplacementNamed(context, Routes.dashboard);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Login failed')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login failed')),
+      );
     }
   }
 
@@ -84,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Username',
+                        'Email',
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -93,7 +95,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       TextFormField(
-                        initialValue: 'sarah@example.com',
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: AppColors.primary.withOpacity(0.3),
@@ -119,7 +120,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       TextFormField(
-                        initialValue: 'password123',
                         obscureText: true,
                         decoration: InputDecoration(
                           filled: true,
@@ -144,8 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
-                            foregroundColor:
-                                Colors.white, // ✅ Ensures text/icon is white
+                            foregroundColor: Colors.white,
                             textStyle: const TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w500),
                           ),
@@ -153,8 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: loading
                               ? const CircularProgressIndicator(
                                   color: Colors.white)
-                              : const Text(
-                                  'Login'), // Text will now show clearly
+                              : const Text('Login'),
                         ),
                       ),
                       const SizedBox(height: 12),

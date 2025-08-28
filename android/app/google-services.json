@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "961614869999",
+    "project_id": "credisense",
+    "storage_bucket": "credisense.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961614869999:android:2585eae12b7a8ae434b21a",
+        "android_client_info": {
+          "package_name": "com.example.credisense"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoSuPJfL_EtsmVUOP2hsZ8KQG7nueYp7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

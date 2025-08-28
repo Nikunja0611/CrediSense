@@ -29,6 +29,14 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
+    // ❌ Prevent admin account signup
+    if (email == AuthProvider.adminEmail) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("This email is reserved for Admin login")),
+      );
+      return;
+    }
+
     setState(() => loading = true);
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final ok = await auth.signup(name: name, email: email, password: password);
@@ -140,9 +148,17 @@ class _SignupScreenState extends State<SignupScreen> {
                       hint: "Enter your password",
                       obscure: true,
                       onSaved: (v) => password = v!.trim(),
-                      validator: (v) =>
-                          (v != null && v.length >= 4) ? null : 'Too short',
+                      validator: (v) {
+                        if (v == null || v.isEmpty)
+                          return 'Password is required';
+                        final auth = Provider.of<AuthProvider>(context, listen: false);
+                        if (!auth.isStrongPassword(v)) {
+                          return 'Password must be at least 8 chars,\ninclude upper, lower, number & symbol';
+                        }
+                        return null;
+                      },
                     ),
+
                     _buildTextField(
                       label: "Confirm Password",
                       hint: "Re-enter your password",
