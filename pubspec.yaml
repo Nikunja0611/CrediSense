@@ -13,13 +13,11 @@ dependencies:
   intl: ^0.18.1
   google_fonts: ^4.0.4
   fl_chart: ^0.66.2
-<<<<<<< Updated upstream
-=======
   http: ^0.13.6
   firebase_core: ^3.15.2
   firebase_auth: ^5.7.0
   cloud_firestore: ^5.6.12
->>>>>>> Stashed changes
+  mailer: ^6.1.0
   
 dev_dependencies:
   flutter_test:
