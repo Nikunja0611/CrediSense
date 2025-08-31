@@ -93,7 +93,7 @@ class RaiseTicketPage extends StatelessWidget {
                 backgroundColor: Colors.blue[900],
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text('Submit', style: TextStyle(fontSize: 16)),
+              child: const Text('Submit', style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ],
         ),

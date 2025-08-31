@@ -1,582 +1,84 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+import '../../widgets/simple_app_bar.dart';
 
-class AnalysisPage extends StatelessWidget {
-  const AnalysisPage({super.key});
+class AdminDashboardScreen extends StatelessWidget {
+  const AdminDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
     
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).appBarTheme.iconTheme?.color ?? Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          'Analysis',
-          style: Theme.of(context).appBarTheme.titleTextStyle ?? 
-                 TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            sectionTitle('Monthly Loan Trends', context),
-            SizedBox(height: 200, child: _buildLineChart(context)),
-
-            sectionTitle('Loan Disbursement Volume', context),
-            SizedBox(height: 200, child: _buildBarChart(context)),
-
-            sectionTitle('Risk Level Distribution', context),
-            SizedBox(height: 200, child: _buildPieChart(context)),
-
-            sectionTitle('Defaulters by Month', context),
-            SizedBox(height: 200, child: _buildDefaultersBar(context)),
-
-            sectionTitle('On-time vs Late Payments', context),
-            SizedBox(height: 200, child: _buildOnTimeVsLateBar(context)),
-
-            sectionTitle('Loans by Type', context),
-            SizedBox(height: 200, child: _buildLoanTypePie(context)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget sectionTitle(String title, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  // Get theme-aware colors
-  Color _getPrimaryColor(BuildContext context) => Theme.of(context).colorScheme.primary;
-  Color _getSecondaryColor(BuildContext context) => Theme.of(context).colorScheme.secondary;
-  Color _getTextColor(BuildContext context) => Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black;
-  Color _getSuccessColor(BuildContext context) => const Color(0xFF4CAF50);
-  Color _getWarningColor(BuildContext context) => const Color(0xFFFF9800);
-  Color _getErrorColor(BuildContext context) => const Color(0xFFF44336);
-  Color _getInfoColor(BuildContext context) => const Color(0xFF2196F3);
-  Color _getPurpleColor(BuildContext context) => const Color(0xFF9C27B0);
-
-  /// Line Chart - Monthly Loan Trends
-  Widget _buildLineChart(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: true,
-            horizontalInterval: 10,
-            verticalInterval: 1,
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: _getTextColor(context).withOpacity(0.1),
-                strokeWidth: 1,
-              );
-            },
-            getDrawingVerticalLine: (value) {
-              return FlLine(
-                color: _getTextColor(context).withOpacity(0.1),
-                strokeWidth: 1,
-              );
-            },
-          ),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-                  if (value.toInt() >= 0 && value.toInt() < months.length) {
-                    return Text(
-                      months[value.toInt()],
-                      style: TextStyle(
-                        color: _getTextColor(context),
-                        fontSize: 12,
-                      ),
-                    );
-                  }
-                  return const SizedBox();
-                },
-              ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  return Text(
-                    value.toInt().toString(),
-                    style: TextStyle(
-                      color: _getTextColor(context),
-                      fontSize: 12,
-                    ),
-                  );
-                },
-              ),
-            ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(
-            show: true,
-            border: Border.all(
-              color: _getTextColor(context).withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          lineBarsData: [
-            LineChartBarData(
-              isCurved: true,
-              spots: const [
-                FlSpot(0, 20),
-                FlSpot(1, 45),
-                FlSpot(2, 40),
-                FlSpot(3, 60),
-                FlSpot(4, 55),
-                FlSpot(5, 70),
-              ],
-              color: _getPrimaryColor(context),
-              barWidth: 3,
-              dotData: FlDotData(
-                show: true,
-                getDotPainter: (spot, percent, barData, index) {
-                  return FlDotCirclePainter(
-                    radius: 4,
-                    color: _getPrimaryColor(context),
-                    strokeWidth: 2,
-                    strokeColor: Theme.of(context).cardColor,
-                  );
-                },
-              ),
-              belowBarData: BarAreaData(
-                show: true,
-                color: _getPrimaryColor(context).withOpacity(0.1),
-              ),
-            ),
-            LineChartBarData(
-              isCurved: true,
-              spots: const [
-                FlSpot(0, 5),
-                FlSpot(1, 10),
-                FlSpot(2, 12),
-                FlSpot(3, 9),
-                FlSpot(4, 11),
-                FlSpot(5, 7),
-              ],
-              color: _getErrorColor(context),
-              barWidth: 3,
-              dotData: FlDotData(
-                show: true,
-                getDotPainter: (spot, percent, barData, index) {
-                  return FlDotCirclePainter(
-                    radius: 4,
-                    color: _getErrorColor(context),
-                    strokeWidth: 2,
-                    strokeColor: Theme.of(context).cardColor,
-                  );
-                },
-              ),
-              belowBarData: BarAreaData(
-                show: true,
-                color: _getErrorColor(context).withOpacity(0.1),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Bar Chart - Loan Disbursement Volume
-  Widget _buildBarChart(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: BarChart(
-        BarChartData(
-          barGroups: [
-            _barGroup(0, 10, context),
-            _barGroup(1, 15, context),
-            _barGroup(2, 15, context),
-            _barGroup(3, 25, context),
-            _barGroup(4, 18, context),
-            _barGroup(5, 28, context),
-          ],
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: 5,
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: _getTextColor(context).withOpacity(0.1),
-                strokeWidth: 1,
-              );
-            },
-          ),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-                  if (value.toInt() >= 0 && value.toInt() < months.length) {
-                    return Text(
-                      months[value.toInt()],
-                      style: TextStyle(
-                        color: _getTextColor(context),
-                        fontSize: 12,
-                      ),
-                    );
-                  }
-                  return const SizedBox();
-                },
-              ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  return Text(
-                    value.toInt().toString(),
-                    style: TextStyle(
-                      color: _getTextColor(context),
-                      fontSize: 12,
-                    ),
-                  );
-                },
-              ),
-            ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(
-            show: true,
-            border: Border.all(
-              color: _getTextColor(context).withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  BarChartGroupData _barGroup(int x, double y, BuildContext context) {
-    return BarChartGroupData(
-      x: x,
-      barRods: [
-        BarChartRodData(
-          toY: y,
-          color: _getPrimaryColor(context),
-          width: 15,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-        ),
-      ],
-    );
-  }
-
-  /// Pie Chart - Risk Level Distribution
-  Widget _buildPieChart(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: PieChart(
-        PieChartData(
-          sections: [
-            PieChartSectionData(
-              value: 60,
-              color: _getSuccessColor(context),
-              title: 'Low\n60%',
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              radius: 60,
-            ),
-            PieChartSectionData(
-              value: 25,
-              color: _getWarningColor(context),
-              title: 'Medium\n25%',
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              radius: 60,
-            ),
-            PieChartSectionData(
-              value: 15,
-              color: _getErrorColor(context),
-              title: 'High\n15%',
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              radius: 60,
-            ),
-          ],
-          sectionsSpace: 2,
-          centerSpaceRadius: 0,
-        ),
-      ),
-    );
-  }
-
-  /// Bar Chart - Defaulters by Month
-  Widget _buildDefaultersBar(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: BarChart(
-        BarChartData(
-          barGroups: [
-            _redBar(0, 2, context),
-            _redBar(1, 4, context),
-            _redBar(2, 5, context),
-            _redBar(3, 3, context),
-            _redBar(4, 6, context),
-            _redBar(5, 7, context),
-          ],
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: 2,
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: _getTextColor(context).withOpacity(0.1),
-                strokeWidth: 1,
-              );
-            },
-          ),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-                  if (value.toInt() >= 0 && value.toInt() < months.length) {
-                    return Text(
-                      months[value.toInt()],
-                      style: TextStyle(
-                        color: _getTextColor(context),
-                        fontSize: 12,
-                      ),
-                    );
-                  }
-                  return const SizedBox();
-                },
-              ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  return Text(
-                    value.toInt().toString(),
-                    style: TextStyle(
-                      color: _getTextColor(context),
-                      fontSize: 12,
-                    ),
-                  );
-                },
-              ),
-            ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(
-            show: true,
-            border: Border.all(
-              color: _getTextColor(context).withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  BarChartGroupData _redBar(int x, double y, BuildContext context) {
-    return BarChartGroupData(
-      x: x,
-      barRods: [
-        BarChartRodData(
-          toY: y,
-          color: _getErrorColor(context),
-          width: 15,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-        ),
-      ],
-    );
-  }
-
-  /// On-time vs Late Payments
-  Widget _buildOnTimeVsLateBar(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+      appBar: const SimpleAppBar(title: 'Credisense'),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(screenWidth * 0.04),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _legendItem('On-time', _getSuccessColor(context)),
-              const SizedBox(width: 20),
-              _legendItem('Late', _getWarningColor(context)),
+              _buildStatsGrid(isTablet),
+              SizedBox(height: screenWidth * 0.05),
+              _buildNavigationButtons(screenWidth),
+              SizedBox(height: screenWidth * 0.05),
+              _buildSearchBar(),
+              SizedBox(height: screenWidth * 0.05),
+              _buildDefaultersList(screenWidth),
+              SizedBox(height: screenWidth * 0.05),
+              _buildLoanApplicants(screenWidth),
             ],
           ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: BarChart(
-              BarChartData(
-                barGroups: List.generate(6, (i) {
-                  return BarChartGroupData(
-                    x: i,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 90,
-                        color: _getSuccessColor(context),
-                        width: 10,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                      ),
-                      BarChartRodData(
-                        toY: 10,
-                        color: _getWarningColor(context),
-                        width: 10,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                      ),
-                    ],
-                  );
-                }),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  horizontalInterval: 20,
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(
-                      color: _getTextColor(context).withOpacity(0.1),
-                      strokeWidth: 1,
-                    );
-                  },
-                ),
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, _) {
-                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-                        if (value.toInt() >= 0 && value.toInt() < months.length) {
-                          return Text(
-                            months[value.toInt()],
-                            style: TextStyle(
-                              color: _getTextColor(context),
-                              fontSize: 12,
-                            ),
-                          );
-                        }
-                        return const SizedBox();
-                      },
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, _) {
-                        return Text(
-                          '${value.toInt()}%',
-                          style: TextStyle(
-                            color: _getTextColor(context),
-                            fontSize: 12,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border.all(
-                    color: _getTextColor(context).withOpacity(0.2),
-                    width: 1,
-                  ),
-                ),
-              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatsGrid(bool isTablet) {
+    final stats = [
+      {'title': 'TOTAL\nAPPLICATIONS', 'value': '1234', 'color': const Color(0xFF4285F4)},
+      {'title': 'PENDING', 'value': '1234', 'color': const Color(0xFFFF5722)},
+      {'title': 'APPROVED', 'value': '1234', 'color': const Color(0xFF4CAF50)},
+      {'title': 'REJECTED', 'value': '1234', 'color': const Color(0xFFFF4444)},
+    ];
+
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: isTablet ? 4 : 2,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: isTablet ? 1.8 : 2.2,
+      children: stats.map((stat) => _buildStatCard(
+        stat['title'] as String, 
+        stat['value'] as String, 
+        stat['color'] as Color
+      )).toList(),
+    );
+  }
+
+  Widget _buildStatCard(String title, String value, Color bgColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            flex: 2,
+            child: FittedBox(
+              child: Text(title, textAlign: TextAlign.center, 
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                maxLines: 2),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Flexible(
+            child: FittedBox(
+              child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -584,92 +86,205 @@ class AnalysisPage extends StatelessWidget {
     );
   }
 
-  Widget _legendItem(String label, Color color) {
+  Widget _buildNavigationButtons(double screenWidth) {
+    final buttons = [
+      {'icon': Icons.analytics, 'label': 'Analysis', 'route': '/analysis'},
+      {'icon': Icons.description, 'label': 'Applications', 'route': '/applications'},
+      {'icon': Icons.people, 'label': 'Community', 'route': '/community'},
+      {'icon': Icons.settings, 'label': 'Settings', 'route': '/adminsettings'},
+    ];
+
+    final buttonSize = screenWidth > 600 ? 60.0 : 50.0;
+    final fontSize = screenWidth > 600 ? 14.0 : 12.0;
+
     return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: buttons.map((btn) => 
+        Flexible(child: _buildNavButton(
+          btn['icon'] as IconData, 
+          btn['label'] as String, 
+          btn['route'] as String, 
+          buttonSize, 
+          fontSize
+        ))
+      ).toList(),
+    );
+  }
+
+  Widget _buildNavButton(IconData icon, String label, String route, double size, double fontSize) {
+    return Builder(
+      builder: (context) => InkWell(
+        onTap: () => Navigator.pushNamed(context, route),
+        borderRadius: BorderRadius.circular(size / 2),
+        child: Container(
+          constraints: BoxConstraints(minWidth: size + 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: size, height: size,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF80CBC4), shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(0, 2))],
+                ),
+                child: Icon(icon, color: const Color(0xFF00695C), size: size * 0.4),
+              ),
+              const SizedBox(height: 8),
+              FittedBox(child: Text(label, style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w500), textAlign: TextAlign.center)),
+            ],
           ),
         ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1565C0), borderRadius: BorderRadius.circular(25),
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(0, 2))],
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.search, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Search here', hintStyle: TextStyle(color: Colors.white70),
+                      border: InputBorder.none, isDense: true,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          width: 48, height: 48,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1565C0), borderRadius: BorderRadius.circular(24),
+            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(0, 2))],
+          ),
+          child: IconButton(icon: const Icon(Icons.tune, color: Colors.white), onPressed: () {}),
         ),
       ],
     );
   }
 
-  /// Loans by Type Pie
-  Widget _buildLoanTypePie(BuildContext context) {
+  Widget _buildDefaultersList(double screenWidth) {
+    final defaulters = [
+      {'name': 'John Doe', 'id': 'C123456'},
+      {'name': 'John Smith', 'id': 'C123476'},
+      {'name': 'David', 'id': 'C177456'},
+    ];
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
+        color: const Color(0xFFFFCDD2), borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('DEFAULTERS LIST', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF8E24AA))),
+          const SizedBox(height: 12),
+          ...defaulters.map((d) => _buildDefaulterItem(d['name'] as String, d['id'] as String, screenWidth)),
         ],
       ),
-      child: PieChart(
-        PieChartData(
-          sections: [
-            PieChartSectionData(
-              value: 35,
-              color: _getPrimaryColor(context),
-              title: 'Housing\n35%',
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              radius: 60,
+    );
+  }
+
+  Widget _buildDefaulterItem(String name, String id, double screenWidth) {
+    return Builder(
+      builder: (context) => Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(25),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 2, offset: const Offset(0, 1))],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text('$name | $id', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14, 
+                color: Theme.of(context).textTheme.bodyLarge?.color)),
             ),
-            PieChartSectionData(
-              value: 25,
-              color: _getWarningColor(context),
-              title: 'Personal\n25%',
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              radius: 60,
-            ),
-            PieChartSectionData(
-              value: 20,
-              color: _getPurpleColor(context),
-              title: 'Vehicle\n20%',
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              radius: 60,
-            ),
-            PieChartSectionData(
-              value: 20,
-              color: _getSuccessColor(context),
-              title: 'Education\n20%',
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              radius: 60,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(color: const Color(0xFF2196F3), borderRadius: BorderRadius.circular(15)),
+              child: Text('View', style: TextStyle(color: Colors.white, fontSize: screenWidth < 350 ? 12 : 13, fontWeight: FontWeight.w500)),
             ),
           ],
-          sectionsSpace: 2,
-          centerSpaceRadius: 0,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoanApplicants(double screenWidth) {
+    final applicants = [
+      {'name': 'Fauget Cafe', 'category': 'Education', 'status': 'Accepted', 'date': 'May 4th, 2024'},
+      {'name': 'Larana, Inc.', 'category': 'Home Loan', 'status': 'Waiting', 'date': 'May 3rd, 2024'},
+      {'name': 'Claudia Alves', 'category': 'Business', 'status': 'Rejected', 'date': 'May 2nd, 2024'},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Loan Applicants', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text('Sort by', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...applicants.map((a) => _buildApplicantItem(
+          a['name'] as String, 
+          a['category'] as String, 
+          a['status'] as String, 
+          a['date'] as String, 
+          screenWidth
+        )),
+      ],
+    );
+  }
+
+  Widget _buildApplicantItem(String name, String category, String status, String date, double screenWidth) {
+    Color statusColor = status == 'Accepted'
+        ? const Color(0xFF4CAF50)
+        : status == 'Waiting'
+            ? const Color(0xFFFF9800)
+            : const Color(0xFFFF5722);
+
+    return Builder(
+      builder: (context) => Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+          leading: Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(color: Colors.grey[800], borderRadius: BorderRadius.circular(8)),
+            child: const Icon(Icons.business, color: Colors.white, size: 20),
+          ),
+          title: Text(name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: screenWidth < 350 ? 14 : 16)),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(date, style: TextStyle(color: Colors.grey[600], fontSize: screenWidth < 350 ? 11 : 12)),
+              Text(category, style: TextStyle(color: Colors.grey[600], fontSize: screenWidth < 350 ? 11 : 12)),
+            ],
+          ),
+          isThreeLine: true,
+          trailing: Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, 
+            fontSize: screenWidth < 350 ? 12 : 14)),
         ),
       ),
     );
