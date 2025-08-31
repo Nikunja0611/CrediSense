@@ -74,7 +74,7 @@ class CredisenseApp extends StatelessWidget {
         ),
       ),
 
-      initialRoute: Routes.login,
+      initialRoute: Routes.splash,
       routes: Routes.getRoutes(),
     );
   }

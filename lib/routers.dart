@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/splash/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'screens/user/dashboard_screen.dart';
@@ -12,6 +13,7 @@ import 'screens/admin/analysis_page.dart';
 import 'screens/admin/admin_settings.dart';
 
 class Routes {
+  static const splash = '/splash';      // Add this
   static const login = '/';
   static const signup = '/signup';
   static const dashboard = '/dashboard';
@@ -26,6 +28,7 @@ class Routes {
 
   static Map<String, WidgetBuilder> getRoutes() {
     return {
+      splash: (ctx) => const SplashScreen(),          // Add this
       login: (ctx) => const LoginScreen(),
       signup: (ctx) => const SignupScreen(),
       dashboard: (ctx) => const DashboardScreen(),
@@ -33,9 +36,9 @@ class Routes {
       creditScore: (ctx) => const CreditScoreScreen(),
       settings: (ctx) => const SettingsScreen(),
       admin: (ctx) => const AdminDashboardScreen(),
-      applications: (ctx) => LoanApplicationsPage(),
+      applications: (ctx) => LoanApplicationsPage(),  // Keep without const if it doesn't support it
       community: (ctx) => const CommunityPage(),
-      analysis: (ctx) => const AnalysisPage(),
+      analysis: (ctx) => AnalysisPage(),              // Remove const from this line
       adminsettings: (ctx) => const AdminSettings(),
     };
   }
