@@ -1,93 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BalanceCard extends StatelessWidget {
   final double balance;
-  final double monthExpense;
+  final double monthlySpending;
   final int creditScore;
-  final VoidCallback? onViewCredit;
-  final Color primaryColor;
-  final Color secondaryColor;
 
   const BalanceCard({
     super.key,
     required this.balance,
-    required this.monthExpense,
+    required this.monthlySpending,
     required this.creditScore,
-    this.onViewCredit,
-    required this.primaryColor,
-    required this.secondaryColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(18.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.account_balance_wallet, color: primaryColor, size: 28),
-                const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Total Balance', style: TextStyle(fontSize: 12)),
+                    Text(AppLocalizations.of(context)!.totalBalance, style: const TextStyle(fontSize: 12)),
                     Text(
-                      '₹${balance.toStringAsFixed(0)}',
-                      style: TextStyle(
-                        fontSize: 26,
+                      '\$${balance.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: primaryColor,
+                        color: Colors.green,
                       ),
                     ),
                   ],
                 ),
-                const Spacer(),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('This Month', style: TextStyle(fontSize: 12)),
+                    Text(AppLocalizations.of(context)!.thisMonth, style: const TextStyle(fontSize: 12)),
                     Text(
-                      '₹${monthExpense.toStringAsFixed(0)}',
-                      style: TextStyle(
+                      '\$${monthlySpending.toStringAsFixed(2)}',
+                      style: const TextStyle(
                         fontSize: 16,
-                        color: secondaryColor,
                         fontWeight: FontWeight.w600,
+                        color: Colors.orange,
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Divider(color: Colors.grey.shade300),
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Credit Score', style: TextStyle(fontSize: 12)),
+                    Text(AppLocalizations.of(context)!.creditScore, style: const TextStyle(fontSize: 12)),
                     Text(
-                      '$creditScore',
-                      style: TextStyle(
-                        fontSize: 22,
+                      creditScore.toString(),
+                      style: const TextStyle(
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: primaryColor,
+                        color: Colors.blue,
                       ),
                     ),
                   ],
                 ),
-                const Spacer(),
                 ElevatedButton(
-                  onPressed: onViewCredit,
+                  onPressed: () {
+                    // Navigate to credit score simulator
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: secondaryColor,
+                    backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: const Text('Credit Score Simulator'),
+                  child: Text(AppLocalizations.of(context)!.creditScoreSimulator),
                 ),
               ],
             ),

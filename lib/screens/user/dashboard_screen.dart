@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../constants/app_colors.dart';
 import '../../providers/finance_provider.dart';
@@ -12,6 +13,7 @@ import '../../widgets/loan_card.dart';
 import '../../widgets/loan_request_card.dart';
 import '../../routers.dart';
 import '../user/ai_insights_screen.dart';
+
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -24,7 +26,7 @@ class DashboardScreen extends StatelessWidget {
     final transactions = finance.transactions.take(6).toList();
 
     return Scaffold(
-      appBar: const SimpleAppBar(title: 'Credisense'),
+      appBar: SimpleAppBar(title: AppLocalizations.of(context)!.dashboardTitle),
       backgroundColor:
           isDark ? AppColors.darkBackground : AppColors.lightBackground,
       bottomNavigationBar: _BottomBar(),
@@ -36,7 +38,7 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _sectionHeading('Credit Score'),
+                _sectionHeading(AppLocalizations.of(context)!.creditScoreTitle),
                 const SizedBox(height: 6),
                 Row(
                   children: [
@@ -73,7 +75,7 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _sectionHeading('AI TIPS'),
+                _sectionHeading(AppLocalizations.of(context)!.aiTipsTitle),
                 const SizedBox(height: 8),
                 AITipsCard(
                   tip:
@@ -91,7 +93,7 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _sectionHeading('Today’s Transactions'),
+                _sectionHeading(AppLocalizations.of(context)!.todaysTransactions),
                 const SizedBox(height: 8),
                 ...transactions.map((t) => TransactionTile(tx: t)),
               ],
@@ -248,32 +250,34 @@ class _BottomBar extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.darkPrimary : AppColors.primary;
 
-    return Container(
-      height: 64,
-      decoration: BoxDecoration(
-        color: bg,
-        border: Border(top: BorderSide(color: Colors.black.withOpacity(0.1))),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navItem(context, Icons.pie_chart_rounded, 'Credit Score', () {
-            Navigator.pushNamed(context, Routes.creditScore);
-          }),
-          _navItem(context, Icons.attach_money_rounded, 'Loan', () {
-            Navigator.pushNamed(context, Routes.loanuser);
-          }),
-          _navItem(context, Icons.psychology_alt_rounded, 'AI Insights', () {
+    return SafeArea(
+      child: Container(
+        height: 64,
+        decoration: BoxDecoration(
+          color: bg,
+          border: Border(top: BorderSide(color: Colors.black.withOpacity(0.1))),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _navItem(context, Icons.pie_chart_rounded, 'Credit Score', () {
+              Navigator.pushNamed(context, Routes.creditScore);
+            }),
+            _navItem(context, Icons.attach_money_rounded, 'Loan', () {
+              Navigator.pushNamed(context, Routes.loanuser);
+            }),
+            _navItem(context, Icons.psychology_alt_rounded, 'AI Insights', () {
   Navigator.push(
     context,
     MaterialPageRoute(builder: (_) => const AIInsightsScreen()),
   );
 }),
 
-          _navItem(context, Icons.person_rounded, 'Profile', () {
-            Navigator.pushNamed(context, Routes.settings);
-          }),
-        ],
+            _navItem(context, Icons.person_rounded, 'Profile', () {
+              Navigator.pushNamed(context, Routes.settings);
+            }),
+          ],
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../routers.dart';
 import '../../constants/app_colors.dart';
@@ -32,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Login failed')));
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.loginFailed)));
     }
   }
 
@@ -84,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Username',
+                        AppLocalizations.of(context)!.usernameLabel,
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -106,11 +107,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         onSaved: (v) => email = v!.trim(),
                         validator: (v) => v != null && v.contains('@')
                             ? null
-                            : 'Enter valid email',
+                            : AppLocalizations.of(context)!.enterValidEmail,
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Password',
+                        AppLocalizations.of(context)!.passwordLabel,
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -132,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onSaved: (v) => password = v!.trim(),
                         validator: (v) => (v != null && v.length >= 4)
                             ? null
-                            : 'Password too short',
+                            : AppLocalizations.of(context)!.passwordTooShort,
                       ),
                       const SizedBox(height: 25),
                       SizedBox(
@@ -153,8 +154,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: loading
                               ? const CircularProgressIndicator(
                                   color: Colors.white)
-                              : const Text(
-                                  'Login'), // Text will now show clearly
+                              : Text(
+                                  AppLocalizations.of(context)!.loginButton), // Text will now show clearly
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -163,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () =>
                               Navigator.pushNamed(context, Routes.signup),
                           child: Text(
-                            'Not yet registered? Register now',
+                            AppLocalizations.of(context)!.notRegistered,
                             style: TextStyle(color: AppColors.primary),
                           ),
                         ),

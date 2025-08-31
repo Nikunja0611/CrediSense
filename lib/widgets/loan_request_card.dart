@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../constants/app_colors.dart';
 
 class LoanRequestCard extends StatelessWidget {
@@ -75,7 +76,7 @@ class LoanRequestCard extends StatelessWidget {
               ),
             ),
             onPressed: onPressed,
-            child: const Text('View Status'),
+            child: Text(AppLocalizations.of(context)!.viewStatus),
           ),
         ],
       ),

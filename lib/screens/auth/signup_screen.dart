@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../routers.dart';
 
@@ -24,7 +25,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.passwordsDontMatch)),
       );
       return;
     }
@@ -38,7 +39,7 @@ class _SignupScreenState extends State<SignupScreen> {
       Navigator.pushReplacementNamed(context, Routes.dashboard);
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Signup failed')));
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.signupFailed)));
     }
   }
 
@@ -119,37 +120,37 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Column(
                   children: [
                     _buildTextField(
-                      label: "Full Name",
+                      label: AppLocalizations.of(context)!.fullNameLabel,
                       hint: "Enter your name",
                       obscure: false,
                       onSaved: (v) => name = v!.trim(),
                       validator: (v) =>
-                          (v != null && v.isNotEmpty) ? null : 'Required',
+                          (v != null && v.isNotEmpty) ? null : AppLocalizations.of(context)!.required,
                     ),
                     _buildTextField(
-                      label: "Email",
+                      label: AppLocalizations.of(context)!.emailLabel,
                       hint: "Enter your email",
                       obscure: false,
                       onSaved: (v) => email = v!.trim(),
                       validator: (v) => v != null && v.contains('@')
                           ? null
-                          : 'Enter valid email',
+                          : AppLocalizations.of(context)!.enterValidEmail,
                     ),
                     _buildTextField(
-                      label: "Password",
+                      label: AppLocalizations.of(context)!.passwordLabel,
                       hint: "Enter your password",
                       obscure: true,
                       onSaved: (v) => password = v!.trim(),
                       validator: (v) =>
-                          (v != null && v.length >= 4) ? null : 'Too short',
+                          (v != null && v.length >= 4) ? null : AppLocalizations.of(context)!.tooShort,
                     ),
                     _buildTextField(
-                      label: "Confirm Password",
+                      label: AppLocalizations.of(context)!.confirmPasswordLabel,
                       hint: "Re-enter your password",
                       obscure: true,
                       onSaved: (v) => confirmPassword = v!.trim(),
                       validator: (v) =>
-                          (v != null && v.length >= 4) ? null : 'Too short',
+                          (v != null && v.length >= 4) ? null : AppLocalizations.of(context)!.tooShort,
                     ),
                     const SizedBox(height: 10),
 
@@ -168,9 +169,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         child: loading
                             ? const CircularProgressIndicator(
                                 color: Colors.white)
-                            : const Text(
-                                "Create Account",
-                                style: TextStyle(
+                            : Text(
+                                AppLocalizations.of(context)!.createAccountButton,
+                                style: const TextStyle(
                                     fontSize: 16, color: Colors.white),
                               ),
                       ),
@@ -186,9 +187,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: const Text(
-                  "Already have an account? Login",
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.alreadyHaveAccount,
+                  style: const TextStyle(
                     color: Color(0xFF004B8D),
                     fontWeight: FontWeight.w500,
                   ),
