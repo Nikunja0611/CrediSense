@@ -1,10 +1,11 @@
-// auth_provider.dart
+// lib/providers/auth_provider.dart
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
+import 'package:crypto/crypto.dart'; // 🔑 For hashing phone numbers
 
 import '../models/user.dart';
 
@@ -21,8 +22,7 @@ class AuthProvider extends ChangeNotifier {
   static const String adminPassword = "Admin#232345";
 
   // Your backend server base URL (⚠️ replace with your laptop IP or hosted URL)
-  static const String backendUrl = "http://192.168.1.109:3000";
- // Example
+  static const String backendUrl = "http://10.57.24.219:3000";
 
   // ---------------------------
   // LOGIN
@@ -94,11 +94,14 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       );
 
+      // 🔑 Hash phone number before saving
+      final phoneHash = sha256.convert(utf8.encode(phoneNumber)).toString();
+
       final userData = {
         "name": name,
         "email": email,
         "role": "user",
-        "phoneNumber": phoneNumber,
+        "phoneHash": phoneHash, // ✅ anonymized phone
         "dob": dob,
         "gender": gender,
         "address": address,
@@ -115,7 +118,7 @@ class AuthProvider extends ChangeNotifier {
         name: name,
         email: email,
         role: "user",
-        phoneNumber: phoneNumber,
+        phoneNumber: phoneNumber, // ✅ keep plain for in-app use only
         dob: dob,
         gender: gender,
         address: address,
@@ -188,6 +191,7 @@ class AuthProvider extends ChangeNotifier {
     _user = null;
     notifyListeners();
   }
+
   // ---------------------------
   // Validators
   // ---------------------------
@@ -198,7 +202,6 @@ class AuthProvider extends ChangeNotifier {
     return regex.hasMatch(password);
   }
 
-
   // ---------------------------
   // Helper: Map Firebase User
   // ---------------------------
@@ -208,7 +211,8 @@ class AuthProvider extends ChangeNotifier {
       name: data["name"] ?? user.displayName ?? "User",
       email: user.email ?? "",
       role: data["role"] ?? "user",
-      phoneNumber: data["phoneNumber"] ?? "",
+      // 🔑 phone is stored as hash, but we can't reverse → leave empty
+      phoneNumber: "", 
       dob: data["dob"] ?? "",
       gender: data["gender"] ?? "",
       address: data["address"] ?? "",
@@ -218,5 +222,4 @@ class AuthProvider extends ChangeNotifier {
       employmentType: data["employmentType"] ?? "",
     );
   }
-
 }

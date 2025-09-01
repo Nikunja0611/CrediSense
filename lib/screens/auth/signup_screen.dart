@@ -27,6 +27,7 @@ class _SignupScreenState extends State<SignupScreen> {
   String employer = '';
   String income = '';
   String empType = '';
+  String phoneNumber = ''; //  NEW: phone number
 
   bool loading = false;
   bool otpSent = false;
@@ -47,7 +48,7 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     setState(() => otpLoading = true);
-    final ok = await auth.sendEmailOtp(inputEmail); // ✅ hits backend
+    final ok = await auth.sendEmailOtp(inputEmail); //  hits backend
     setState(() => otpLoading = false);
 
     if (ok) {
@@ -81,7 +82,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
-    // ✅ Verify OTP with backend before signup
+    //  Verify OTP with backend before signup
     String result = await auth.verifyEmailOtp(email, otp);
 
     if (!otpSent || result != "success") {
@@ -97,7 +98,7 @@ class _SignupScreenState extends State<SignupScreen> {
       name: name,
       email: email,
       password: password,
-      phoneNumber: "", // can remove if not needed anymore
+      phoneNumber: phoneNumber, // ✅ pass real phone number
       dob: dob,
       gender: gender,
       address: address,
@@ -218,6 +219,14 @@ class _SignupScreenState extends State<SignupScreen> {
                       validator: (v) => v != null && v.contains('@')
                           ? null
                           : 'Enter valid email',
+                    ),
+                    _buildTextField(
+                      label: "Phone Number", // ✅ NEW FIELD
+                      hint: "Enter your phone number",
+                      type: TextInputType.phone,
+                      onSaved: (v) => phoneNumber = v!.trim(),
+                      validator: (v) =>
+                          (v != null && v.length >= 10) ? null : 'Enter valid phone',
                     ),
                     _buildTextField(
                       label: "Date of Birth",
