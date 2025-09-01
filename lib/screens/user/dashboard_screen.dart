@@ -4,15 +4,18 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../constants/app_colors.dart';
 import '../../providers/finance_provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../widgets/simple_app_bar.dart';
+
+
 import '../../widgets/transaction_tile.dart';
 import '../../widgets/credit_score_chart.dart';
 import '../../widgets/ai_tips_card.dart';
 import '../../widgets/loan_card.dart';
 import '../../widgets/loan_request_card.dart';
 import '../../routers.dart';
+import '../../widgets/simple_app_bar.dart';
+import '../user/analytics_screen.dart';
 import '../user/ai_insights_screen.dart';
+
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -20,13 +23,16 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
-    final auth = Provider.of<AuthProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final transactions = finance.transactions.take(6).toList();
+    // Use SMS transactions instead of mock data
+    final transactions = finance.getRecentSMSTransactions(limit: 6);
 
     return Scaffold(
-      appBar: SimpleAppBar(title: AppLocalizations.of(context)!.dashboardTitle),
+      appBar: SimpleAppBar(
+        title: AppLocalizations.of(context)!.dashboardTitle,
+        showThemeToggle: true,
+      ),
       backgroundColor:
           isDark ? AppColors.darkBackground : AppColors.lightBackground,
       bottomNavigationBar: _BottomBar(),
@@ -88,15 +94,48 @@ class DashboardScreen extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Today's Transactions
-          _RoundedSection(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _sectionHeading(AppLocalizations.of(context)!.todaysTransactions),
-                const SizedBox(height: 8),
-                ...transactions.map((t) => TransactionTile(tx: t)),
-              ],
+          // Today's Transactions (Clickable for Analytics)
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AnalyticsScreen(),
+                ),
+              );
+            },
+            child: _RoundedSection(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _sectionHeading(AppLocalizations.of(context)!.todaysTransactions),
+                      Icon(
+                        Icons.analytics_outlined,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ...transactions.map((t) => TransactionTile(tx: t)),
+                  if (transactions.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: Text(
+                          'No recent transactions found',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
 
@@ -267,11 +306,11 @@ class _BottomBar extends StatelessWidget {
               Navigator.pushNamed(context, Routes.loanuser);
             }),
             _navItem(context, Icons.psychology_alt_rounded, 'AI Insights', () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const AIInsightsScreen()),
-  );
-}),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AIInsightsScreen()),
+              );
+            }),
 
             _navItem(context, Icons.person_rounded, 'Profile', () {
               Navigator.pushNamed(context, Routes.settings);

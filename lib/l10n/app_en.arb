@@ -36,7 +36,7 @@
   "loanCategories": "Loan Categories",
   "loanRequests": "Loan Requests",
   "aiFinancialAssistant": "AI Financial Assistant",
-  "typing": "🤖 Typing...",
+  "typing": " Typing...",
   "networkError": "⚠ Network error. Please try again.",
   "apiError": "⚠ Error: Couldn't fetch response.",
   "settingsTitle": "Settings",
