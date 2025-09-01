@@ -1,0 +1,32 @@
+{
+  "user": {
+    "name": "Ravi Kumar",
+    "credit_score": 720,
+    "profile": "Working Professional",
+    "monthly_income": 60000,
+    "loan_history": ["Personal Loan - Ongoing", "Credit Card EMI - Cleared"]
+  },
+  "persona": {
+    "type": "Responsible Borrower",
+    "description": "Ravi pays his EMIs on time and keeps credit utilization under control. He has a good repayment history but limited credit mix."
+  },
+  "strengths": [
+    "On-time EMI repayments",
+    "Low credit utilization (25%)",
+    "Improving credit age"
+  ],
+  "weaknesses": [
+    "Limited credit mix",
+    "High dependency on a single credit source"
+  ],
+  "recommendations": [
+    "Diversify credit types (e.g., small vehicle loan/credit card).",
+    "Keep utilization consistently below 30%.",
+    "Avoid frequent loan applications in short time spans."
+  ],
+  "insights": {
+    "risk_level": "Low",
+    "financial_health": "Stable",
+    "growth_opportunity": "Eligible for larger loans with reduced interest rates if portfolio is diversified."
+  }
+}

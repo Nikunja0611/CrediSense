@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../providers/language_provider.dart';
+import '../../services/translation_service.dart';
 
 class AIInsightsScreen extends StatefulWidget {
   const AIInsightsScreen({super.key});
@@ -37,6 +41,14 @@ class _AIInsightsScreenState extends State<AIInsightsScreen> {
       if (response.statusCode == 200) {
         var reply = json.decode(response.body)["reply"];
 
+        // Translate AI response if not in English
+        final currentLocale =
+            Provider.of<LanguageProvider>(context, listen: false).locale;
+        if (currentLocale.languageCode != 'en') {
+          reply = await TranslationService.translateText(
+              reply, currentLocale.languageCode);
+        }
+
         // 🔹 Clean response: remove extra asterisks from markdown
         reply = reply.replaceAll("**", "").replaceAll("*", "•");
 
@@ -46,13 +58,13 @@ class _AIInsightsScreenState extends State<AIInsightsScreen> {
       } else {
         setState(() {
           _chatMessages.add(
-              {"role": "ai", "text": "⚠ Error: Couldn’t fetch response."});
+              {"role": "ai", "text": AppLocalizations.of(context)!.apiError});
         });
       }
     } catch (e) {
       setState(() {
         _chatMessages.add(
-            {"role": "ai", "text": "⚠ Network error. Please try again."});
+            {"role": "ai", "text": AppLocalizations.of(context)!.networkError});
       });
     } finally {
       setState(() => _isLoading = false);
@@ -78,7 +90,7 @@ class _AIInsightsScreenState extends State<AIInsightsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("AI Financial Assistant"),
+        title: Text(AppLocalizations.of(context)!.aiFinancialAssistant),
         backgroundColor: primaryBlue,
         elevation: 2,
       ),
@@ -140,12 +152,12 @@ class _AIInsightsScreenState extends State<AIInsightsScreen> {
             ),
 
             if (_isLoading)
-              const Padding(
-                padding: EdgeInsets.all(8.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text("🤖 Typing...",
-                      style: TextStyle(color: Colors.grey, fontSize: 13)),
+                  child: Text(AppLocalizations.of(context)!.typing,
+                      style: const TextStyle(color: Colors.grey, fontSize: 13)),
                 ),
               ),
 
@@ -162,7 +174,8 @@ class _AIInsightsScreenState extends State<AIInsightsScreen> {
                         minLines: 1,
                         maxLines: 4,
                         decoration: InputDecoration(
-                          hintText: "Ask about credit score, loans, payments...",
+                          hintText:
+                              "Ask about credit score, loans, payments...",
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(

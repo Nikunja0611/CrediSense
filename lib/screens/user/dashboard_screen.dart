@@ -1,30 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../constants/app_colors.dart';
 import '../../providers/finance_provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../widgets/simple_app_bar.dart';
+
 import '../../widgets/transaction_tile.dart';
 import '../../widgets/credit_score_chart.dart';
 import '../../widgets/ai_tips_card.dart';
 import '../../widgets/loan_card.dart';
 import '../../widgets/loan_request_card.dart';
 import '../../routers.dart';
+import '../../widgets/simple_app_bar.dart';
+import '../user/analytics_screen.dart';
 import '../user/ai_insights_screen.dart';
+
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
-    final auth = Provider.of<AuthProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final transactions = finance.transactions.take(6).toList();
+    // Use SMS transactions instead of mock data
+    final transactions = finance.getRecentSMSTransactions(limit: 6);
 
     return Scaffold(
-      appBar: const SimpleAppBar(title: 'Credisense'),
+      appBar: SimpleAppBar(
+        title: AppLocalizations.of(context)!.dashboardTitle,
+        showThemeToggle: true,
+      ),
       backgroundColor:
           isDark ? AppColors.darkBackground : AppColors.lightBackground,
       bottomNavigationBar: _BottomBar(),
@@ -36,7 +42,7 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _sectionHeading('Credit Score'),
+                _sectionHeading(AppLocalizations.of(context)!.creditScoreTitle),
                 const SizedBox(height: 6),
                 Row(
                   children: [
@@ -73,7 +79,7 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _sectionHeading('AI TIPS'),
+                _sectionHeading(AppLocalizations.of(context)!.aiTipsTitle),
                 const SizedBox(height: 8),
                 AITipsCard(
                   tip:
@@ -86,15 +92,49 @@ class DashboardScreen extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Today's Transactions
-          _RoundedSection(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _sectionHeading('Today’s Transactions'),
-                const SizedBox(height: 8),
-                ...transactions.map((t) => TransactionTile(tx: t)),
-              ],
+          // Today's Transactions (Clickable for Analytics)
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AnalyticsScreen(),
+                ),
+              );
+            },
+            child: _RoundedSection(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _sectionHeading(
+                          AppLocalizations.of(context)!.todaysTransactions),
+                      Icon(
+                        Icons.analytics_outlined,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ...transactions.map((t) => TransactionTile(tx: t)),
+                  if (transactions.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: Text(
+                          'No recent transactions found',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
 
@@ -140,7 +180,6 @@ class DashboardScreen extends StatelessWidget {
               children: [
                 _sectionHeading('Loan Requests'),
                 const SizedBox(height: 8),
-
                 LoanRequestCard(
                   icon: Icons.school_rounded,
                   title: 'Educational Loan',
@@ -161,7 +200,6 @@ class DashboardScreen extends StatelessWidget {
                     );
                   },
                 ),
-
                 LoanRequestCard(
                   icon: Icons.account_balance_wallet_rounded,
                   title: 'Personal Loan',
@@ -248,32 +286,33 @@ class _BottomBar extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.darkPrimary : AppColors.primary;
 
-    return Container(
-      height: 64,
-      decoration: BoxDecoration(
-        color: bg,
-        border: Border(top: BorderSide(color: Colors.black.withOpacity(0.1))),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navItem(context, Icons.pie_chart_rounded, 'Credit Score', () {
-            Navigator.pushNamed(context, Routes.creditScore);
-          }),
-          _navItem(context, Icons.attach_money_rounded, 'Loan', () {
-            Navigator.pushNamed(context, Routes.loanuser);
-          }),
-          _navItem(context, Icons.psychology_alt_rounded, 'AI Insights', () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const AIInsightsScreen()),
-  );
-}),
-
-          _navItem(context, Icons.person_rounded, 'Profile', () {
-            Navigator.pushNamed(context, Routes.settings);
-          }),
-        ],
+    return SafeArea(
+      child: Container(
+        height: 64,
+        decoration: BoxDecoration(
+          color: bg,
+          border: Border(top: BorderSide(color: Colors.black.withOpacity(0.1))),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _navItem(context, Icons.pie_chart_rounded, 'Credit Score', () {
+              Navigator.pushNamed(context, Routes.creditScore);
+            }),
+            _navItem(context, Icons.attach_money_rounded, 'Loan', () {
+              Navigator.pushNamed(context, Routes.loanuser);
+            }),
+            _navItem(context, Icons.psychology_alt_rounded, 'AI Insights', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AIInsightsScreen()),
+              );
+            }),
+            _navItem(context, Icons.person_rounded, 'Profile', () {
+              Navigator.pushNamed(context, Routes.settings);
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -371,7 +410,8 @@ class LoanStatusPopup extends StatelessWidget {
                   SizedBox(width: 6),
                   Text("Applied"),
                   SizedBox(width: 20),
-                  Icon(Icons.radio_button_unchecked, color: Colors.red, size: 18),
+                  Icon(Icons.radio_button_unchecked,
+                      color: Colors.red, size: 18),
                   SizedBox(width: 6),
                   Text("Verified"),
                 ],
