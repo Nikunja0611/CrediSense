@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'screens/user/dashboard_screen.dart';
@@ -11,6 +14,8 @@ import 'screens/admin/loan_applications_page.dart';
 import 'screens/admin/community_page.dart';
 import 'screens/admin/analysis_page.dart';
 import 'screens/admin/admin_settings.dart';
+import 'screens/user/consent_form_screen.dart';
+import 'screens/user/manual_input_form.dart';
 
 class Routes {
   static const login = '/';
@@ -25,21 +30,38 @@ class Routes {
   static const community = '/community';
   static const applications = '/applications';
   static const adminsettings = '/adminsettings';
+  static const consentForm = '/consentForm';
+  static const manualInputForm = '/manualInputForm';
 
   static Map<String, WidgetBuilder> getRoutes() {
     return {
       login: (ctx) => const LoginScreen(),
       signup: (ctx) => const SignupScreen(),
-      dashboard: (ctx) =>  DashboardScreen(),
+      dashboard: (ctx) => DashboardScreen(),
       transactions: (ctx) => const TransactionsScreen(),
       loanuser: (ctx) => const LoanUser(),
-      creditScore: (ctx) => const CreditScoreScreen(),
+
+      // ✅ Handle onboarding redirect
+      creditScore: (ctx) {
+        final auth = Provider.of<AuthProvider>(ctx, listen: false);
+
+        // First login? → Show manual input
+        if (auth.isFirstLogin) {
+          return const ManualInputForm();
+        }
+
+        // Otherwise go to credit score screen (FinanceProvider handles state)
+        return const CreditScoreScreen();
+      },
+
       settings: (ctx) => const SettingsScreen(),
       admin: (ctx) => const AdminDashboardScreen(),
       applications: (ctx) => LoanApplicationsPage(),
       community: (ctx) => const CommunityPage(),
       analysis: (ctx) => const AnalysisPage(),
       adminsettings: (ctx) => const AdminSettings(),
+      consentForm: (ctx) => const ConsentFormScreen(),
+      manualInputForm: (ctx) => const ManualInputForm(),
     };
   }
 }

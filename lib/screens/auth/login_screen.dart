@@ -20,141 +20,98 @@ class _LoginScreenState extends State<LoginScreen> {
   void _submit() async {
     if (!_form.currentState!.validate()) return;
     _form.currentState!.save();
+
     setState(() => loading = true);
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final ok = await auth.login(email: email, password: password);
     setState(() => loading = false);
+
     if (ok) {
       if (auth.user?.role == 'admin') {
         Navigator.pushReplacementNamed(context, Routes.admin);
       } else {
-        Navigator.pushReplacementNamed(context, Routes.dashboard);
+        // 👇 if it's first login, go to ConsentForm
+        if (auth.user?.isFirstLogin == true) {
+          Navigator.pushReplacementNamed(context, Routes.consentForm);
+        } else {
+          Navigator.pushReplacementNamed(context, Routes.dashboard);
+        }
       }
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Login failed')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login failed, try again')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? AppColors.darkBackground
-          : Colors.white,
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Profile icon
               CircleAvatar(
                 radius: 40,
-                backgroundColor: AppColors.primary.withOpacity(0.4),
-                child: const Icon(Icons.person,
+                backgroundColor: AppColors.primary.withOpacity(0.1),
+                child: const Icon(Icons.lock,
                     size: 50, color: AppColors.primary),
               ),
               const SizedBox(height: 30),
-
-              // Card container
               Container(
-                width: double.infinity,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      offset: const Offset(3, 3),
-                      blurRadius: 6,
-                    ),
+                        color: Colors.black26,
+                        blurRadius: 6,
+                        offset: Offset(0, 3)),
                   ],
-                  border: Border.all(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.grey.shade800
-                          : Colors.black54,
-                      width: 0.6),
                 ),
                 child: Form(
                   key: _form,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Username',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        initialValue: 'sarah@example.com',
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.primary.withOpacity(0.3),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
+                      _buildField(
+                        label: "Email",
+                        obscure: false,
                         onSaved: (v) => email = v!.trim(),
-                        validator: (v) => v != null && v.contains('@')
-                            ? null
-                            : 'Enter valid email',
+                        validator: (v) =>
+                            v != null && v.contains('@')
+                                ? null
+                                : 'Enter valid email',
                       ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Password',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        initialValue: 'password123',
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.primary.withOpacity(0.3),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
+                      _buildField(
+                        label: "Password",
+                        obscure: true,
                         onSaved: (v) => password = v!.trim(),
-                        validator: (v) => (v != null && v.length >= 4)
-                            ? null
-                            : 'Password too short',
+                        validator: (v) =>
+                            v != null && v.length >= 4 ? null : 'Too short',
                       ),
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 15),
                       SizedBox(
                         width: double.infinity,
                         height: 45,
                         child: ElevatedButton(
+                          onPressed: loading ? null : _submit,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            foregroundColor:
-                                Colors.white, // ✅ Ensures text/icon is white
-                            textStyle: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
+                                borderRadius: BorderRadius.circular(30)),
                           ),
-                          onPressed: loading ? null : _submit,
                           child: loading
                               ? const CircularProgressIndicator(
                                   color: Colors.white)
-                              : const Text(
-                                  'Login'), // Text will now show clearly
+                              : const Text("Login",
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.white)),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -162,12 +119,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: TextButton(
                           onPressed: () =>
                               Navigator.pushNamed(context, Routes.signup),
-                          child: Text(
-                            'Not yet registered? Register now',
+                          child: const Text(
+                            "New user? Create account",
                             style: TextStyle(color: AppColors.primary),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -175,6 +132,31 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildField({
+    required String label,
+    required bool obscure,
+    required FormFieldSetter<String> onSaved,
+    required FormFieldValidator<String> validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        obscureText: obscure,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: AppColors.primary.withOpacity(0.1),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        onSaved: onSaved,
+        validator: validator,
       ),
     );
   }

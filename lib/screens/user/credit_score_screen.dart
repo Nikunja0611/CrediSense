@@ -1,289 +1,254 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../constants/app_colors.dart';
 
+import '../../constants/app_colors.dart';
+import '../../providers/finance_provider.dart';
+
+// ---- MODEL ----
+class CreditScoreModel {
+  final double? lgbmScore;
+  final double? xgbScore;
+  final String riskCategory;
+  final Map<String, dynamic>? userInputs;
+
+  CreditScoreModel({
+    this.lgbmScore,
+    this.xgbScore,
+    required this.riskCategory,
+    this.userInputs,
+  });
+
+  factory CreditScoreModel.fromProvider(FinanceProvider finance) {
+    return CreditScoreModel(
+      lgbmScore: finance.creditScoreLgbm,
+      xgbScore: finance.creditScoreXgb,
+      riskCategory: finance.riskCategory ?? "Unknown",
+      userInputs: finance.userInputs,
+    );
+  }
+}
+
+// ---- SCREEN ----
 class CreditScoreScreen extends StatelessWidget {
   const CreditScoreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final double score = 678;
-    final List<double> scoreTrend = [620, 640, 655, 670, 678];
-    final List<double> utilizationTrend = [60, 55, 50, 48, 42];
-    final int missedPayments = 2;
-    final int onTimePayments = 18;
+    final finance = Provider.of<FinanceProvider>(context);
+    final data = CreditScoreModel.fromProvider(finance);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "CREDIT SCORE",
+          "CREDIT SCORE ANALYSIS",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: AppColors.primary,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // CREDIT SCORE CARD (Prototype style)
-            // CREDIT SCORE CARD (Fixed Pie + Center Text)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF003366), Color(0xFF006699)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)],
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        PieChart(
-                          PieChartData(
-                            sectionsSpace: 0,
-                            centerSpaceRadius: 35,
-                            startDegreeOffset: -90,
-                            sections: [
-                              PieChartSectionData(
-                                value: score,
-                                color: Colors.pinkAccent,
-                                radius: 18,
-                                showTitle: false,
-                                borderSide: BorderSide.none,
-                              ),
-                              PieChartSectionData(
-                                value: 850 - score,
-                                color: Colors.grey.shade300,
-                                radius: 18,
-                                showTitle: false,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              score.toStringAsFixed(0),
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Text(
-                              "/850",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white70,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+      body: _buildContent(data, finance),
+    );
+  }
+
+  Widget _buildContent(CreditScoreModel data, FinanceProvider finance) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ---- SCORE CHART ----
+          _scoreChart(data, finance),
+
+          const SizedBox(height: 20),
+
+          // ---- RISK CARD ----
+          _riskCard(data.riskCategory),
+
+          const SizedBox(height: 20),
+
+          // ---- INCOME vs EXPENSE CHART ----
+          _incomeExpenseChart(finance),
+
+          const SizedBox(height: 20),
+
+          // ---- USER INPUTS ----
+          if (data.userInputs != null && data.userInputs!.isNotEmpty)
+            _userInputsSection(data.userInputs!),
+        ],
+      ),
+    );
+  }
+
+  // --- Circular Score Chart ---
+  Widget _scoreChart(CreditScoreModel data, FinanceProvider finance) {
+    double lgbm = data.lgbmScore ?? finance.creditScore.toDouble();
+    double xgb = data.xgbScore ?? finance.creditScore.toDouble();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
+      ),
+      child: Column(
+        children: [
+          const Text("Credit Score Overview",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 180,
+            child: PieChart(
+              PieChartData(
+                sections: [
+                  PieChartSectionData(
+                    value: lgbm,
+                    color: Colors.blue,
+                    title: "LGBM\n${lgbm.toStringAsFixed(0)}",
+                    radius: 60,
+                    titleStyle:
+                        const TextStyle(color: Colors.white, fontSize: 14),
                   ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Text(
-                      "$score — Fair\nNot bad, but not strong enough to get the best deals.",
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  )
+                  PieChartSectionData(
+                    value: xgb,
+                    color: Colors.green,
+                    title: "XGB\n${xgb.toStringAsFixed(0)}",
+                    radius: 60,
+                    titleStyle:
+                        const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // SCORE LOWERING FACTORS
-            const Text("SCORE-LOWERING FACTORS",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 8),
-            _factorCard("Recent late payment on ₹X EMI"),
-            _factorCard("Credit card utilization over 50%"),
-            const SizedBox(height: 20),
-
-            // FIX MY SCORE
-            const Text("FIX MY SCORE!",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 8),
-            _factorCard(
-                "Pay down ₹X on your credit card to boost by ~20 points"),
-            _factorCard("Set auto-pay to avoid missing EMIs"),
-            const SizedBox(height: 20),
-
-            // ANALYSIS & GRAPHS
-            _AnalysisCard(
-              title: "Credit Score Trend",
-              chart: _buildLineChart(scoreTrend, Colors.blueAccent),
-              tip: scoreTrend.last > scoreTrend.first
-                  ? "Your score is improving, keep paying bills on time."
-                  : "Score is dropping, check spending and late payments.",
-            ),
-            const SizedBox(height: 16),
-            _AnalysisCard(
-              title: "Credit Utilization (%)",
-              chart: _buildLineChart(utilizationTrend, Colors.orangeAccent),
-              tip: utilizationTrend.last > 50
-                  ? "Lower usage to below 30% for faster score growth."
-                  : "Good utilization, maintain below 30%.",
-            ),
-            const SizedBox(height: 16),
-            _AnalysisCard(
-              title: "Payment History",
-              chart: _buildBarChart(missedPayments, onTimePayments),
-              tip: missedPayments > 0
-                  ? "Avoid missing EMI payments to prevent score drops."
-                  : "Great! No missed payments recently.",
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  // FACTOR CARD WIDGET
-  Widget _factorCard(String text) {
+  // --- Risk Card ---
+  Widget _riskCard(String risk) {
+    Color bg;
+    String tip;
+
+    switch (risk) {
+      case "Excellent":
+        bg = Colors.green.shade100;
+        tip = "🎉 You are eligible for the best credit deals.";
+        break;
+      case "Good":
+        bg = Colors.blue.shade100;
+        tip = "✅ Your score is strong. Maintain low utilization.";
+        break;
+      case "Average":
+        bg = Colors.orange.shade100;
+        tip = "⚠️ Improve by paying bills on time and reducing loans.";
+        break;
+      case "Moderate":
+        bg = Colors.red.shade100;
+        tip = "📉 High risk. Avoid late fees & reduce debt.";
+        break;
+      default:
+        bg = Colors.red.shade200;
+        tip = "❌ Very risky. Pay EMIs on time & clear pending debts.";
+    }
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.85),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
       ),
-      child:
-          Text(text, style: const TextStyle(color: Colors.white, fontSize: 14)),
+      child: Text("💡 Recommendation: $tip",
+          style: const TextStyle(fontSize: 16)),
     );
   }
 
-  // LINE CHART BUILDER
-  Widget _buildLineChart(List<double> values, Color color) {
-    return SizedBox(
-      height: 180,
-      child: LineChart(
-        LineChartData(
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (value, meta) =>
-                      Text("Q${value.toInt() + 1}")),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true, reservedSize: 28),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: values
-                  .asMap()
-                  .entries
-                  .map((e) => FlSpot(e.key.toDouble(), e.value))
-                  .toList(),
-              isCurved: true,
-              barWidth: 3,
-              color: color,
-              dotData: FlDotData(show: true),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // --- Income vs Expense Chart ---
+  Widget _incomeExpenseChart(FinanceProvider finance) {
+    final totalBalance = finance.totalBalance;
+    final monthlyExpense = finance.monthExpense;
 
-  // BAR CHART BUILDER
-  Widget _buildBarChart(int missed, int onTime) {
-    return SizedBox(
-      height: 180,
-      child: BarChart(
-        BarChartData(
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  if (value.toInt() == 0) return const Text("On-Time");
-                  if (value.toInt() == 1) return const Text("Missed");
-                  return const Text("");
-                },
-              ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true, reservedSize: 28),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          barGroups: [
-            BarChartGroupData(x: 0, barRods: [
-              BarChartRodData(
-                  toY: onTime.toDouble(),
-                  color: Colors.green,
-                  width: 20,
-                  borderRadius: BorderRadius.circular(4))
-            ]),
-            BarChartGroupData(x: 1, barRods: [
-              BarChartRodData(
-                  toY: missed.toDouble(),
-                  color: Colors.red,
-                  width: 20,
-                  borderRadius: BorderRadius.circular(4))
-            ]),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// REUSABLE ANALYSIS CARD
-class _AnalysisCard extends StatelessWidget {
-  final String title;
-  final Widget chart;
-  final String tip;
-
-  const _AnalysisCard({
-    required this.title,
-    required this.chart,
-    required this.tip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 6, spreadRadius: 2),
-        ],
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 8),
-          chart,
-          const SizedBox(height: 8),
-          Text("💡 $tip",
-              style: const TextStyle(color: Colors.black87, fontSize: 14)),
+          const Text("Income vs Expense",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 200,
+            child: BarChart(
+              BarChartData(
+                barGroups: [
+                  BarChartGroupData(x: 0, barRods: [
+                    BarChartRodData(toY: totalBalance, color: Colors.blue),
+                  ], showingTooltipIndicators: [0]),
+                  BarChartGroupData(x: 1, barRods: [
+                    BarChartRodData(toY: monthlyExpense, color: Colors.red),
+                  ], showingTooltipIndicators: [0]),
+                ],
+                titlesData: FlTitlesData(
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (v, _) {
+                        switch (v.toInt()) {
+                          case 0:
+                            return const Text("Balance");
+                          case 1:
+                            return const Text("Expense");
+                        }
+                        return const Text("");
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- User Inputs Transparency ---
+  Widget _userInputsSection(Map<String, dynamic> inputs) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Your Submitted Details",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Divider(),
+          ...inputs.entries.map((entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                        child: Text("${entry.key}:",
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w500))),
+                    const SizedBox(width: 10),
+                    Text(entry.value.toString(),
+                        style: const TextStyle(color: Colors.black54)),
+                  ],
+                ),
+              )),
         ],
       ),
     );

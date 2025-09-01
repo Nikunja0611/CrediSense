@@ -35,7 +35,8 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => loading = false);
 
     if (ok) {
-      Navigator.pushReplacementNamed(context, Routes.dashboard);
+      // 👇 redirect to Consent Form instead of Dashboard
+      Navigator.pushReplacementNamed(context, Routes.consentForm);
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Signup failed')));
@@ -92,7 +93,6 @@ class _SignupScreenState extends State<SignupScreen> {
           child: Column(
             children: [
               const SizedBox(height: 40),
-              // Avatar Placeholder
               CircleAvatar(
                 radius: 40,
                 backgroundColor: const Color(0xFF004B8D).withOpacity(0.1),
@@ -100,8 +100,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     size: 50, color: Color(0xFF004B8D)),
               ),
               const SizedBox(height: 30),
-
-              // Card Container
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -131,9 +129,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       hint: "Enter your email",
                       obscure: false,
                       onSaved: (v) => email = v!.trim(),
-                      validator: (v) => v != null && v.contains('@')
-                          ? null
-                          : 'Enter valid email',
+                      validator: (v) =>
+                          v != null && v.contains('@') ? null : 'Enter valid email',
                     ),
                     _buildTextField(
                       label: "Password",
@@ -152,8 +149,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           (v != null && v.length >= 4) ? null : 'Too short',
                     ),
                     const SizedBox(height: 10),
-
-                    // Create Account Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -166,22 +161,16 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                         ),
                         child: loading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white)
-                            : const Text(
-                                "Create Account",
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text("Create Account",
                                 style: TextStyle(
-                                    fontSize: 16, color: Colors.white),
-                              ),
+                                    fontSize: 16, color: Colors.white)),
                       ),
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // Already registered link
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
@@ -189,9 +178,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: const Text(
                   "Already have an account? Login",
                   style: TextStyle(
-                    color: Color(0xFF004B8D),
-                    fontWeight: FontWeight.w500,
-                  ),
+                      color: Color(0xFF004B8D), fontWeight: FontWeight.w500),
                 ),
               ),
             ],

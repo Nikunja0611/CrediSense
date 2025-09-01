@@ -6,12 +6,12 @@ import '../../providers/finance_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/simple_app_bar.dart';
 import '../../widgets/transaction_tile.dart';
-import '../../widgets/credit_score_chart.dart';
 import '../../widgets/ai_tips_card.dart';
 import '../../widgets/loan_card.dart';
 import '../../widgets/loan_request_card.dart';
 import '../../routers.dart';
 import '../user/ai_insights_screen.dart';
+
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -31,76 +31,93 @@ class DashboardScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: [
-          // Credit Score section card
+          // ---- Credit Score section card ----
           _RoundedSection(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _sectionHeading('Credit Score'),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Expanded(
-                      flex: 5,
-                      child: CreditScoreChart(segments: [40, 25, 20, 15]),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _legendDot(const Color(0xFF70A6FF), 'Repayment'),
-                          const SizedBox(height: 8),
-                          _legendDot(const Color(0xFF7CD992), 'Utilization'),
-                          const SizedBox(height: 8),
-                          _legendDot(const Color(0xFF9E7BFF), 'Credit Age'),
-                          const SizedBox(height: 8),
-                          _legendDot(const Color(0xFF6BA8FF), 'Mix/Enquiries'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _sectionHeading('Credit Score'),
+      const SizedBox(height: 10),
+
+      // Credit Scores Row
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            finance.creditScoreLgbm != null
+                ? "LGBM: ${finance.creditScoreLgbm!.toStringAsFixed(0)}"
+                : "Score: ${finance.creditScore}",
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
+          ),
+          if (finance.creditScoreXgb != null)
+            Text(
+              "XGB: ${finance.creditScoreXgb!.toStringAsFixed(0)}",
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.blueGrey,
+              ),
+            ),
+        ],
+      ),
+
+      const SizedBox(height: 8),
+
+      // Risk Category
+      if (finance.riskCategory != null)
+        Text(
+          "Risk Category: ${finance.riskCategory}",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: finance.riskCategory == "Excellent"
+                ? Colors.green
+                : finance.riskCategory == "Good"
+                    ? Colors.lightGreen
+                    : finance.riskCategory == "Average"
+                        ? Colors.orange
+                        : Colors.red,
+          ),
+        )
+      else
+        const Text(
+          "No backend score yet. Showing mock score.",
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+
+      const SizedBox(height: 10),
+
               ],
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // AI Tips
-          _RoundedSection(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _sectionHeading('AI TIPS'),
-                const SizedBox(height: 8),
-                AITipsCard(
-                  tip:
-                      'Your credit score is improving—keep paying bills on time to boost it further. '
-                      'Reducing outstanding debts can raise your score and unlock better loan offers.',
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Today's Transactions
+          // ---- Today’s Transactions ----
           _RoundedSection(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _sectionHeading('Today’s Transactions'),
                 const SizedBox(height: 8),
-                ...transactions.map((t) => TransactionTile(tx: t)),
+                if (transactions.isNotEmpty)
+                  ...transactions.map((t) => TransactionTile(tx: t))
+                else
+                  const Text(
+                    "No transactions today.",
+                    style: TextStyle(color: Colors.grey),
+                  ),
               ],
             ),
           ),
 
           const SizedBox(height: 18),
 
-          // Apply for new Loans (horizontal row)
+          // ---- Apply for new Loans ----
           _sectionHeading('Apply for new Loans'),
           const SizedBox(height: 10),
           SizedBox(
@@ -112,7 +129,7 @@ class DashboardScreen extends StatelessWidget {
                   icon: Icons.home_rounded,
                   title: 'Housing Loan',
                   subtitle:
-                      'Amount: ₹30,00,000  |  Tenure: 15 years  |  Interest Rate: 7.2% p.a.',
+                      'Amount: ₹30,00,000 | Tenure: 15 years | Interest Rate: 7.2% p.a.',
                   onTap: () {
                     Navigator.pushNamed(context, Routes.transactions);
                   },
@@ -122,7 +139,7 @@ class DashboardScreen extends StatelessWidget {
                   icon: Icons.directions_car_filled_rounded,
                   title: 'Vehicle Loan',
                   subtitle:
-                      'Amount: ₹8,00,000  |  Tenure: 5 years  |  Interest Rate: 9.1% p.a.',
+                      'Amount: ₹8,00,000 | Tenure: 5 years | Interest Rate: 9.1% p.a.',
                   onTap: () {
                     Navigator.pushNamed(context, Routes.transactions);
                   },
@@ -133,7 +150,7 @@ class DashboardScreen extends StatelessWidget {
 
           const SizedBox(height: 18),
 
-          // Loan Requests
+          // ---- Loan Requests ----
           _RoundedSection(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,26 +214,6 @@ class DashboardScreen extends StatelessWidget {
           fontWeight: FontWeight.w800,
         ),
       );
-
-  static Widget _legendDot(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 14,
-          height: 14,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ],
-    );
-  }
 }
 
 class _RoundedSection extends StatelessWidget {
@@ -242,6 +239,7 @@ class _RoundedSection extends StatelessWidget {
   }
 }
 
+
 class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -264,12 +262,11 @@ class _BottomBar extends StatelessWidget {
             Navigator.pushNamed(context, Routes.loanuser);
           }),
           _navItem(context, Icons.psychology_alt_rounded, 'AI Insights', () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const AIInsightsScreen()),
-  );
-}),
-
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AIInsightsScreen()),
+            );
+          }),
           _navItem(context, Icons.person_rounded, 'Profile', () {
             Navigator.pushNamed(context, Routes.settings);
           }),
@@ -371,7 +368,8 @@ class LoanStatusPopup extends StatelessWidget {
                   SizedBox(width: 6),
                   Text("Applied"),
                   SizedBox(width: 20),
-                  Icon(Icons.radio_button_unchecked, color: Colors.red, size: 18),
+                  Icon(Icons.radio_button_unchecked,
+                      color: Colors.red, size: 18),
                   SizedBox(width: 6),
                   Text("Verified"),
                 ],

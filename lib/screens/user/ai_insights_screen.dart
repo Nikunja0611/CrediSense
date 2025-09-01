@@ -29,7 +29,7 @@ class _AIInsightsScreenState extends State<AIInsightsScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse("http://192.168.0.105:8000/chat"), // LAN IP
+        Uri.parse("http://10.57.24.188:8000/chat"), // LAN IP
         headers: {"Content-Type": "application/json"},
         body: json.encode({"query": text}),
       );
