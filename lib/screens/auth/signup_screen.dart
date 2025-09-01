@@ -68,31 +68,54 @@ class _SignupScreenState extends State<SignupScreen> {
   // SUBMIT SIGNUP
   // -------------------------
   Future<void> _submit() async {
-    if (!_form.currentState!.validate()) return;
+    debugPrint("🔄 _submit method called");
+    
+    if (!_form.currentState!.validate()) {
+      debugPrint("❌ Form validation failed");
+      return;
+    }
+    debugPrint("✅ Form validation passed");
+    
     _form.currentState!.save();
+    debugPrint("✅ Form data saved");
 
     final email = emailController.text.trim();
     final otp = otpController.text.trim();
 
+    debugPrint("🔄 Starting signup process for: $email");
+    debugPrint("📧 Email: $email");
+    debugPrint("🔢 OTP: $otp");
+    debugPrint("📱 Phone: $phoneNumber");
+    debugPrint("👤 Name: $name");
+    debugPrint("🔒 Password length: ${password.length}");
+    debugPrint("🔒 Confirm password length: ${confirmPassword.length}");
+
     if (password != confirmPassword) {
+      debugPrint("❌ Passwords don't match");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.passwordsDontMatch)),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.passwordsDontMatch)),
       );
       return;
     }
+    debugPrint("✅ Passwords match");
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
     //  Verify OTP with backend before signup
+    debugPrint("🔐 Verifying OTP...");
     String result = await auth.verifyEmailOtp(email, otp);
+    debugPrint("🔐 OTP verification result: $result");
 
     if (!otpSent || result != "success") {
+      debugPrint("❌ OTP verification failed. otpSent: $otpSent, result: $result");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Invalid or missing OTP")),
       );
       return;
     }
 
+    debugPrint("✅ OTP verified, proceeding with Firebase signup...");
     setState(() => loading = true);
 
     final ok = await auth.signup(
@@ -112,10 +135,12 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => loading = false);
 
     if (ok) {
+      debugPrint("🎉 Signup successful, navigating to dashboard");
       Navigator.pushReplacementNamed(context, Routes.dashboard);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.signupFailed)));
+      debugPrint("❌ Signup failed");
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.signupFailed)));
     }
   }
 
@@ -208,8 +233,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       label: AppLocalizations.of(context)!.fullNameLabel,
                       hint: "Enter your name",
                       onSaved: (v) => name = v!.trim(),
-                      validator: (v) =>
-                          (v != null && v.isNotEmpty) ? null : AppLocalizations.of(context)!.required,
+                      validator: (v) => (v != null && v.isNotEmpty)
+                          ? null
+                          : AppLocalizations.of(context)!.required,
                     ),
                     _buildTextField(
                       label: AppLocalizations.of(context)!.emailLabel,
@@ -222,13 +248,13 @@ class _SignupScreenState extends State<SignupScreen> {
                           : AppLocalizations.of(context)!.enterValidEmail,
                     ),
                     _buildTextField(
-<<<<<<< HEAD
                       label: "Phone Number", // ✅ NEW FIELD
                       hint: "Enter your phone number",
                       type: TextInputType.phone,
                       onSaved: (v) => phoneNumber = v!.trim(),
-                      validator: (v) =>
-                          (v != null && v.length >= 10) ? null : 'Enter valid phone',
+                      validator: (v) => (v != null && v.length >= 10)
+                          ? null
+                          : 'Enter valid phone',
                     ),
                     _buildTextField(
                       label: "Date of Birth",
@@ -290,22 +316,15 @@ class _SignupScreenState extends State<SignupScreen> {
                         }
                         return null;
                       },
-=======
-                      label: AppLocalizations.of(context)!.passwordLabel,
-                      hint: "Enter your password",
-                      obscure: true,
-                      onSaved: (v) => password = v!.trim(),
-                      validator: (v) =>
-                          (v != null && v.length >= 4) ? null : AppLocalizations.of(context)!.tooShort,
->>>>>>> CHAI
                     ),
                     _buildTextField(
                       label: AppLocalizations.of(context)!.confirmPasswordLabel,
                       hint: "Re-enter your password",
                       obscure: true,
                       onSaved: (v) => confirmPassword = v!.trim(),
-                      validator: (v) =>
-                          (v != null && v.length >= 4) ? null : AppLocalizations.of(context)!.tooShort,
+                      validator: (v) => (v != null && v.length >= 4)
+                          ? null
+                          : AppLocalizations.of(context)!.tooShort,
                     ),
 
                     // -------------------------
@@ -355,7 +374,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             ? const CircularProgressIndicator(
                                 color: Colors.white)
                             : Text(
-                                AppLocalizations.of(context)!.createAccountButton,
+                                AppLocalizations.of(context)!
+                                    .createAccountButton,
                                 style: const TextStyle(
                                     fontSize: 16, color: Colors.white),
                               ),

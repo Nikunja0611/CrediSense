@@ -19,15 +19,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await DatabaseService.database;
-
-
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize database
-  
+  await DatabaseService.database;
   
   final mockService = MockService();
   await mockService.loadMockData();

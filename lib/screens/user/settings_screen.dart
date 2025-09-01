@@ -161,9 +161,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-<<<<<<< HEAD
-}
-=======
 
   String _getCurrentLanguageName(BuildContext context) {
     final locale = Provider.of<LanguageProvider>(context, listen: false).locale;
@@ -211,4 +208,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
->>>>>>> CHAI

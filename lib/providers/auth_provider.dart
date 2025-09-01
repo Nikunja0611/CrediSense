@@ -22,7 +22,7 @@ class AuthProvider extends ChangeNotifier {
   static const String adminPassword = "Admin#232345";
 
   // Your backend server base URL (⚠️ replace with your laptop IP or hosted URL)
-  static const String backendUrl = "http://10.57.24.219:3000";
+  static const String backendUrl = "http://172.22.82.216:3000";
 
   // ---------------------------
   // LOGIN
@@ -89,10 +89,14 @@ class AuthProvider extends ChangeNotifier {
     required String employmentType,
   }) async {
     try {
+      debugPrint("🔄 Starting Firebase signup for: $email");
+      
       final result = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      debugPrint("✅ Firebase user created successfully: ${result.user!.uid}");
 
       // 🔑 Hash phone number before saving
       final phoneHash = sha256.convert(utf8.encode(phoneNumber)).toString();
@@ -111,7 +115,9 @@ class AuthProvider extends ChangeNotifier {
         "employmentType": employmentType,
       };
 
+      debugPrint("💾 Saving user data to Firestore...");
       await _firestore.collection("users").doc(result.user!.uid).set(userData);
+      debugPrint("✅ User data saved to Firestore successfully");
 
       _user = UserModel(
         id: result.user!.uid,
@@ -129,9 +135,15 @@ class AuthProvider extends ChangeNotifier {
       );
 
       notifyListeners();
+      debugPrint("🎉 Signup completed successfully!");
       return true;
     } catch (e) {
-      debugPrint("Signup error: $e");
+      debugPrint("❌ Signup error: $e");
+      debugPrint("❌ Error type: ${e.runtimeType}");
+      if (e is FirebaseAuthException) {
+        debugPrint("❌ Firebase Auth Error Code: ${e.code}");
+        debugPrint("❌ Firebase Auth Error Message: ${e.message}");
+      }
       return false;
     }
   }
@@ -212,7 +224,7 @@ class AuthProvider extends ChangeNotifier {
       email: user.email ?? "",
       role: data["role"] ?? "user",
       // 🔑 phone is stored as hash, but we can't reverse → leave empty
-      phoneNumber: "", 
+      phoneNumber: "",
       dob: data["dob"] ?? "",
       gender: data["gender"] ?? "",
       address: data["address"] ?? "",
