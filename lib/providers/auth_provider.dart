@@ -22,7 +22,7 @@ class AuthProvider extends ChangeNotifier {
   static const String adminPassword = "Admin#232345";
 
   // Your backend server base URL (⚠️ replace with your laptop IP or hosted URL)
-  static const String backendUrl = "http://10.57.24.219:3000";
+  static const String backendUrl = "http://172.22.82.221:3000";
 
   // ---------------------------
   // LOGIN

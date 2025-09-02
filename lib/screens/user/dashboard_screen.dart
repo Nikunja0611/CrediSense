@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // ✅ Added for announcements
 
 import '../../constants/app_colors.dart';
 import '../../providers/finance_provider.dart';
@@ -12,6 +13,7 @@ import '../../widgets/loan_card.dart';
 import '../../widgets/loan_request_card.dart';
 import '../../routers.dart';
 import '../user/ai_insights_screen.dart';
+
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -179,6 +181,59 @@ class DashboardScreen extends StatelessWidget {
                         interestRate: "7.2% p.a.",
                         status: "Pending",
                       ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          // ✅ Community Announcements
+          _RoundedSection(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _sectionHeading('Community Announcements'),
+                const SizedBox(height: 8),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("community_posts")
+                      .orderBy("createdAt", descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Text("No announcements yet.");
+                    }
+
+                    return Column(
+                      children: snapshot.data!.docs.map((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          child: ListTile(
+                            leading: const Icon(Icons.campaign,
+                                color: Colors.blue),
+                            title: Text(data["title"] ?? "Untitled"),
+                            subtitle: Text(data["message"] ?? ""),
+                            trailing: Text(
+                              data["createdAt"] != null
+                                  ? (data["createdAt"] as Timestamp)
+                                      .toDate()
+                                      .toString()
+                                      .split(" ")
+                                      .first
+                                  : "",
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.grey),
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     );
                   },
                 ),

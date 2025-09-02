@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class EmailService {
-  static const String backendUrl = "http://10.57.24.219:3000"; 
+  static const String backendUrl = "http://172.22.82.221:3000"; 
   //  Replace with your system's local IP if testing on real device
   // Use http://10.0.2.2:3000 if testing on Android Emulator
 
